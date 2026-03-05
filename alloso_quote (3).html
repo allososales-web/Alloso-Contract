@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alloso 견적서</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #f7f4ef; font-family: 'Noto Sans KR', sans-serif; color: #1a1a1a; }
+.nav { background: #1a1a1a; color: #fff; padding: 13px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.nav-brand { font-family: 'Cormorant Garamond', serif; font-size: 18px; letter-spacing: .22em; }
+.nav-steps { display: flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: .07em; }
+.done { color: #b8975a; } .cur { color: #fff; font-weight: 700; } .next { color: #555; } .sep { color: #444; font-size: 9px; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 100px; }
+.doc-hdr { display: flex; justify-content: space-between; align-items: flex-start; border-top: 4px solid #1a1a1a; padding-top: 22px; margin-bottom: 32px; }
+.brand { font-family: 'Cormorant Garamond', serif; font-size: 28px; letter-spacing: .22em; }
+.brand-sub { font-size: 10px; color: #9e9690; letter-spacing: .12em; margin-top: 3px; }
+.doc-title { font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 600; letter-spacing: .12em; text-align: right; }
+.doc-meta { font-size: 11px; color: #9e9690; text-align: right; margin-top: 5px; line-height: 1.8; }
+.sec { margin-bottom: 28px; }
+.sec-label { font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #9e9690; text-transform: uppercase; border-bottom: 1px solid #e0dbd4; padding-bottom: 7px; margin-bottom: 14px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 11px; color: #9e9690; }
+.field input, .field textarea { border: 1px solid #e0dbd4; background: #fff; padding: 8px 10px; font-family: inherit; font-size: 13px; border-radius: 2px; outline: none; width: 100%; }
+.field input:focus { border-color: #b8975a; }
+.field input[readonly] { background: #f0ede8; color: #9e9690; cursor: default; }
+
+/* 주소검색 */
+.addr-search-row { display: flex; gap: 7px; margin-bottom: 6px; }
+.addr-search-row input { flex: 1; border: 1px solid #e0dbd4; background: #fff; padding: 8px 10px; font-family: inherit; font-size: 13px; border-radius: 2px; outline: none; }
+.addr-search-row input:focus { border-color: #b8975a; }
+.addr-search-btn { padding: 0 16px; background: #1a1a1a; color: #fff; border: none; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+.addr-search-btn:hover { background: #333; }
+.addr-fields { display: flex; gap: 7px; margin-bottom: 6px; }
+.addr-pc   { width: 110px; flex-shrink: 0; }
+.addr-main { flex: 1; }
+.addr-results { display: none; border: 1px solid #e0dbd4; border-radius: 2px; background: #fff; max-height: 240px; overflow-y: auto; }
+.addr-results.show { display: block; }
+.addr-item { padding: 11px 14px; border-bottom: 1px solid #f0ede8; cursor: pointer; }
+.addr-item:last-child { border-bottom: none; }
+.addr-item:hover { background: #faf8f5; }
+.addr-road { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+.addr-jibun { font-size: 11px; color: #9e9690; }
+.addr-zip { display: inline-block; margin-top: 4px; padding: 2px 8px; background: #f0ede8; border-radius: 10px; font-size: 11px; color: #6b5a3e; }
+.addr-msg { padding: 20px; text-align: center; font-size: 13px; color: #9e9690; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead th { background: #1a1a1a; color: #fff; padding: 8px 9px; text-align: left; font-weight: 500; font-size: 11px; white-space: nowrap; }
+.tc { text-align: center; } .tr { text-align: right; }
+tbody td { border-bottom: 1px solid #e8e3dc; padding: 6px 7px; vertical-align: middle; }
+tbody td input { border: none; background: transparent; font-family: inherit; font-size: 12.5px; width: 100%; outline: none; }
+tbody td input[readonly] { color: #9e9690; }
+.del-btn { background: none; border: none; color: #c8c0b8; cursor: pointer; font-size: 17px; padding: 0; line-height: 1; }
+.del-btn:hover { color: #e07070; }
+.add-btn { margin-top: 9px; background: none; border: 1px dashed #d0cbc4; color: #9e9690; font-family: inherit; font-size: 12px; padding: 6px 16px; cursor: pointer; border-radius: 2px; }
+.summary { background: #fff; border: 1px solid #e0dbd4; border-radius: 3px; padding: 18px 22px; }
+.sum-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+.sum-row .lbl { color: #9e9690; }
+.sum-total { border-top: 1px solid #e0dbd4; margin-top: 9px; padding-top: 13px; font-size: 15px; font-weight: 700; }
+.sum-total .val { color: #b8975a; font-size: 17px; }
+.disc-val { color: #c05050; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 32px; padding-top: 22px; border-top: 1px solid #e0dbd4; }
+.btn { padding: 11px 26px; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .06em; border: none; cursor: pointer; border-radius: 2px; }
+.btn-sec { background: #eae6e0; color: #4a4641; }
+.btn-pri { background: #1a1a1a; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-brand">Alloso</div>
+  <div class="nav-steps">
+    <span class="done">가격표</span><span class="sep">›</span>
+    <span class="cur">견적서</span><span class="sep">›</span>
+    <span class="next">계약서</span>
+  </div>
+  <button style="background:none;border:none;color:#888;font-size:20px;cursor:pointer;" onclick="history.back()">✕</button>
+</div>
+
+<div class="wrap">
+  <div class="doc-hdr">
+    <div><div class="brand">Alloso</div><div class="brand-sub">Premium Sofa Collection</div></div>
+    <div><div class="doc-title">견&nbsp;&nbsp;적&nbsp;&nbsp;서</div><div class="doc-meta" id="meta"></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-label">고객 정보</div>
+    <div class="grid2">
+      <div class="field"><label>성명 *</label><input id="f-name" type="text" placeholder="고객 성함"></div>
+      <div class="field"><label>연락처 *</label><input id="f-phone" type="tel" placeholder="010-0000-0000"></div>
+      <div class="field full">
+        <label>주소</label>
+        <!-- 검색창 -->
+        <div class="addr-search-row">
+          <input id="addr-input" type="text" placeholder="도로명 또는 지번 주소 입력 (예: 오금로 310)"
+            onkeydown="if(event.key==='Enter')addrSearch()">
+          <button class="addr-search-btn" onclick="addrSearch()">검색</button>
+        </div>
+        <!-- 결과 목록 -->
+        <div id="addr-results" class="addr-results"></div>
+        <!-- 선택된 주소 표시 -->
+        <div class="addr-fields">
+          <input id="f-pc"   class="addr-pc"   type="text" placeholder="우편번호" readonly>
+          <input id="f-addr" class="addr-main" type="text" placeholder="기본 주소 (검색 후 선택)" readonly>
+        </div>
+        <input id="f-addr-detail" type="text" placeholder="상세 주소 (동·호수 등)">
+      </div>
+      <div class="field"><label>담당 직원</label><input id="f-manager" type="text" placeholder="직원명"></div>
+      <div class="field"><label>견적일</label><input id="f-date" type="date"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-label">품목 내역</div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th class="tc" style="width:34px">No</th>
+          <th style="min-width:150px">상품명</th>
+          <th style="min-width:85px">세트코드</th>
+          <th style="min-width:70px">색상</th>
+          <th class="tr" style="width:50px">수량</th>
+          <th class="tr" style="width:55px">할인%</th>
+          <th class="tr" style="width:110px">정가</th>
+          <th class="tr" style="width:110px">금액</th>
+          <th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addRow()">+ 품목 추가</button>
+  </div>
+
+  <div class="sec">
+    <div class="sec-label">견적 금액</div>
+    <div class="summary">
+      <div class="sum-row"><span class="lbl">정가 합계</span><span id="s-retail">0원</span></div>
+      <div class="sum-row"><span class="lbl">할인 금액</span><span id="s-disc" class="disc-val">-0원</span></div>
+      <div class="sum-row sum-total">
+        <span class="lbl">최종 견적 금액 <small style="font-weight:400;font-size:11px">(VAT 별도)</small></span>
+        <span id="s-total" class="val">0원</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-label">비고</div>
+    <div class="field">
+      <textarea id="f-notes" rows="3" placeholder="특이사항, 배송 조건 등" style="resize:vertical;"></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-sec" onclick="history.back()">← 가격표</button>
+    <button class="btn btn-pri" onclick="toContract()">계약서 작성하기 →</button>
+  </div>
+</div>
+
+<script>
+/* ── 초기화 ── */
+var rows = [];
+var quoteNo = '';
+
+window.onload = function() {
+  var today = new Date();
+  document.getElementById('f-date').value = today.toISOString().slice(0,10);
+  quoteNo = 'Q'+today.toISOString().slice(0,10).replace(/-/g,'')+'-'+(Math.floor(Math.random()*900)+100);
+  document.getElementById('meta').innerHTML = '견적번호 '+quoteNo+'<br>'+today.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+  try {
+    var saved = localStorage.getItem('alloso_cart');
+    if (saved) {
+      var cart = JSON.parse(saved);
+      rows = cart.map(function(item) {
+        var disc = item.origPrice ? Math.round((1-(item.salePrice||item.origPrice)/item.origPrice)*100) : 0;
+        return { name:[item.series,item.name].filter(Boolean).join(' · '), code:item.code||'', color:item.color||'', qty:item.qty||1, disc:disc, origPrice:item.origPrice||0 };
+      });
+    }
+  } catch(e) {}
+  render();
+};
+
+/* ── 테이블 ── */
+function fmt(n){ return Number(n||0).toLocaleString('ko-KR'); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+function lineAmt(r){ return Math.round((r.origPrice||0)*(1-(r.disc||0)/100))*(r.qty||1); }
+
+function render() {
+  var tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  rows.forEach(function(r,i){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="tc" style="color:#9e9690;font-size:12px;">'+(i+1)+'</td>'+
+      '<td><input type="text" value="'+esc(r.name)+'" oninput="upd('+i+',\'name\',this.value)"></td>'+
+      '<td><input type="text" value="'+esc(r.code)+'" oninput="upd('+i+',\'code\',this.value)"></td>'+
+      '<td><input type="text" value="'+esc(r.color)+'" oninput="upd('+i+',\'color\',this.value)"></td>'+
+      '<td><input type="number" value="'+(r.qty||1)+'" min="1" style="text-align:right;width:44px;" oninput="upd('+i+',\'qty\',+this.value||1)"></td>'+
+      '<td><input type="number" value="'+(r.disc||0)+'" min="0" max="100" style="text-align:right;width:44px;" oninput="upd('+i+',\'disc\',+this.value||0)"></td>'+
+      '<td class="tr" style="color:#9e9690;" id="op'+i+'">'+fmt(r.origPrice)+'</td>'+
+      '<td class="tr" style="font-weight:500;" id="lt'+i+'">'+fmt(lineAmt(r))+'원</td>'+
+      '<td><button class="del-btn" onclick="delRow('+i+')">×</button></td>';
+    tbody.appendChild(tr);
+  });
+  recalc();
+}
+function upd(i,key,val){ rows[i][key]=val; if(key==='qty'||key==='disc'){ var el=document.getElementById('lt'+i); if(el)el.textContent=fmt(lineAmt(rows[i]))+'원'; recalc(); } }
+function addRow(){ rows.push({name:'',code:'',color:'',qty:1,disc:0,origPrice:0}); render(); }
+function delRow(i){ rows.splice(i,1); render(); }
+function recalc(){
+  var retail=0,total=0;
+  rows.forEach(function(r){retail+=(r.origPrice||0)*(r.qty||1);total+=lineAmt(r);});
+  document.getElementById('s-retail').textContent=fmt(retail)+'원';
+  document.getElementById('s-disc').textContent='-'+fmt(retail-total)+'원';
+  document.getElementById('s-total').textContent=fmt(total)+'원';
+  return {retail:retail,discount:retail-total,total:total};
+}
+
+/* ── 계약서로 ── */
+function toContract(){
+  var name=document.getElementById('f-name').value.trim();
+  var phone=document.getElementById('f-phone').value.trim();
+  if(!name){alert('성명을 입력해 주세요');return;}
+  if(!phone){alert('연락처를 입력해 주세요');return;}
+  if(!rows.length){alert('품목을 추가해 주세요');return;}
+  var nums=recalc();
+  localStorage.setItem('alloso_quote',JSON.stringify({
+    quoteNo:quoteNo,name:name,phone:phone,
+    pc:document.getElementById('f-pc').value,
+    addr:document.getElementById('f-addr').value,
+    addrDetail:document.getElementById('f-addr-detail').value,
+    manager:document.getElementById('f-manager').value,
+    date:document.getElementById('f-date').value,
+    notes:document.getElementById('f-notes').value,
+    rows:rows,retail:nums.retail,discount:nums.discount,total:nums.total
+  }));
+  window.location.href='alloso_contract.html';
+}
+
+/* ── 주소검색 (JSONP) ──
+   Kakao 주소 API를 <script> 태그로 직접 호출.
+   팝업/iframe/postMessage 없음 → file:// 에서도 동작 */
+function addrSearch(){
+  var query = document.getElementById('addr-input').value.trim();
+  if(!query) return;
+
+  var resultsEl = document.getElementById('addr-results');
+  resultsEl.className = 'addr-results show';
+  resultsEl.innerHTML = '<div class="addr-msg">검색 중...</div>';
+
+  /* JSONP 콜백 이름 (중복 방지) */
+  var cb = '_kakao_' + Date.now();
+  var script = document.createElement('script');
+  var done = false;
+
+  /* 콜백: Kakao 서버가 스크립트 실행 시 호출 */
+  window[cb] = function(data) {
+    done = true;
+    delete window[cb];
+    document.head.removeChild(script);
+    renderResults(data && data.items ? data.items : []);
+  };
+
+  /* 6초 타임아웃 */
+  setTimeout(function(){
+    if(done) return;
+    delete window[cb];
+    if(script.parentNode) document.head.removeChild(script);
+    resultsEl.innerHTML = '<div class="addr-msg" style="color:#c05050;">검색 실패 — 인터넷 연결을 확인해 주세요</div>';
+  }, 6000);
+
+  script.src = 'https://spi.maps.daum.net/imap/service/search/reqsearch'
+    + '?type=address&format=json&callback=' + cb
+    + '&q=' + encodeURIComponent(query);
+  document.head.appendChild(script);
+}
+
+function renderResults(items){
+  var el = document.getElementById('addr-results');
+  if(!items.length){
+    el.innerHTML = '<div class="addr-msg">검색 결과가 없습니다.<br><small>도로명(예: 오금로 310) 또는 지번으로 검색해보세요.</small></div>';
+    return;
+  }
+  el.innerHTML = '';
+  items.forEach(function(item){
+    var road  = item.road_addr || '';
+    var jibun = item.addr      || road;
+    var zip   = item.zip       || '';
+
+    var div = document.createElement('div');
+    div.className = 'addr-item';
+    div.innerHTML =
+      '<div class="addr-road">'+(road||jibun)+'</div>'+
+      (jibun&&road&&jibun!==road ? '<div class="addr-jibun">'+jibun+'</div>' : '')+
+      (zip ? '<span class="addr-zip">'+zip+'</span>' : '');
+
+    /* 클릭 시 직접 필드에 입력 — 같은 페이지 내 함수 호출이라 항상 동작 */
+    div.onclick = function(){
+      document.getElementById('f-pc').value   = zip;
+      document.getElementById('f-addr').value = road || jibun;
+      document.getElementById('addr-results').className = 'addr-results';
+      document.getElementById('addr-input').value = '';
+      document.getElementById('f-addr-detail').value = '';
+      document.getElementById('f-addr-detail').focus();
+    };
+    el.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
