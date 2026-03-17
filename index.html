@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALLOSO 영업 도구</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f5f4f1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: #bbb;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 200px);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .grid-full {
+      display: grid;
+      grid-template-columns: 414px;
+      gap: 14px;
+    }
+
+    a.card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 20px 22px;
+      background: #fff;
+      border: 1px solid #e0dbd4;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #1a1a1a;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    a.card:hover {
+      border-color: #9e9690;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    }
+
+    a.card.dark {
+      background: #1a1a1a;
+      border-color: #1a1a1a;
+      color: #fff;
+    }
+
+    a.card.dark:hover {
+      background: #2a2a2a;
+      border-color: #2a2a2a;
+    }
+
+    .card-icon {
+      font-size: 22px;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+
+    .card-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: #9e9690;
+      letter-spacing: .04em;
+      line-height: 1.5;
+    }
+
+    a.card.dark .card-desc { color: #888; }
+
+    .version {
+      margin-top: 40px;
+      font-size: 10px;
+      color: #ccc;
+      letter-spacing: .06em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">ALLOSO</div>
+  <div class="tagline">Inspiration Evokes Tomorrow</div>
+
+  <div class="grid">
+    <a class="card" href="alloso_price.html">
+      <div class="card-icon">🏷</div>
+      <div class="card-label">가격표</div>
+      <div class="card-desc">제품별 정가 조회<br>견적 바로 시작</div>
+    </a>
+
+    <a class="card" href="alloso_quote.html">
+      <div class="card-icon">📋</div>
+      <div class="card-label">견적서</div>
+      <div class="card-desc">할인 구조 자동계산<br>PDF · Firestore 저장</div>
+    </a>
+
+    <a class="card" href="alloso_contract.html">
+      <div class="card-icon">📝</div>
+      <div class="card-label">계약서</div>
+      <div class="card-desc">고객 서명 · 케어북<br>PDF 출력</div>
+    </a>
+
+    <a class="card" href="alloso_archive.html">
+      <div class="card-icon">🗂</div>
+      <div class="card-label">아카이브</div>
+      <div class="card-desc">견적 · 계약 내역<br>검색 · CSV 내보내기</div>
+    </a>
+  </div>
+
+  <div class="grid-full">
+    <a class="card dark" href="alloso_archive.html">
+      <div class="card-label" style="font-size:11px;letter-spacing:.12em">ADMIN</div>
+      <div class="card-desc" style="margin-top:4px">매장 PIN 관리 · 전환율 분석 · 전체 데이터 조회</div>
+    </a>
+  </div>
+
+  <div class="version">allososales-web.github.io/Alloso-Contract</div>
+
+</body>
+</html>
